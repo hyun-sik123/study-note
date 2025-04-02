@@ -23,6 +23,7 @@ markdown
     <link rel="stylesheet" href="styles.css">
 </head>
 ```
+
 # 2.2. 내부 스타일 시트 (Internal CSS)
 - HTML 문서 내 <style> 태그를 사용하여 스타일을 정의할 수 있습니다. 주로 한 페이지에만 스타일을 적용할 때 사용합니다.
 ```html
@@ -40,6 +41,7 @@ html
     </style>
 </head>
 ```
+
 # 2.3. 인라인 스타일 (Inline CSS)
 - HTML 태그 내 style 속성을 사용하여 직접 스타일을 지정하는 방법입니다. 하나의 요소에만 스타일을 적용할 때 유용합니다.
 ```html
@@ -78,7 +80,7 @@ css
 }
 ```
 
-3.2. 복합 선택자
+# 3.2. 복합 선택자
 - 자식 선택자: 특정 부모 요소의 자식 요소에 스타일을 적용합니다.
 ```html
 css
