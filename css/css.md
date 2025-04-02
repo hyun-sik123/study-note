@@ -40,7 +40,7 @@ html
         }
     </style>
 </head>
-2.3. 인라인 스타일 (Inline CSS)
+# 2.3. 인라인 스타일 (Inline CSS)
 HTML 태그 내 style 속성을 사용하여 직접 스타일을 지정하는 방법입니다. 하나의 요소에만 스타일을 적용할 때 유용합니다.
 
 예시 코드:
@@ -50,7 +50,7 @@ html
 3. CSS 선택자 (Selectors)
 CSS 선택자는 HTML 요소에 스타일을 적용할 대상을 선택합니다. 주요 선택자는 다음과 같습니다:
 
-3.1. 기본 선택자
+# 3.1. 기본 선택자
 요소 선택자: HTML 요소를 선택하여 스타일을 적용합니다.
 
 css
@@ -97,8 +97,8 @@ css
 h1, h2, h3 {
     font-family: Arial, sans-serif;
 }
-4. CSS 속성
-4.1. 색상 및 배경
+# 4. CSS 속성
+# 4.1. 색상 및 배경
 color: 텍스트의 색상을 설정합니다.
 
 background-color: 배경색을 설정합니다.
@@ -113,7 +113,7 @@ body {
 h1 {
     color: darkblue;
 }
-4.2. 폰트
+# 4.2. 폰트
 font-family: 글꼴을 설정합니다.
 
 font-size: 글꼴 크기를 설정합니다.
@@ -128,7 +128,7 @@ p {
     font-size: 16px;
     font-weight: bold;
 }
-4.3. 텍스트 스타일
+# 4.3. 텍스트 스타일
 text-align: 텍스트 정렬을 설정합니다.
 
 line-height: 텍스트 줄 간격을 설정합니다.
@@ -142,7 +142,7 @@ h1 {
     text-align: center;
     text-decoration: underline;
 }
-4.4. 박스 모델
+# 4.4. 박스 모델
 박스 모델은 모든 HTML 요소가 사각형 박스로 간주된다는 개념입니다. 이 박스는 네 가지 주요 부분으로 구성됩니다: content, padding, border, margin.
 
 padding: 콘텐츠와 경계선 사이의 공간
@@ -160,8 +160,8 @@ div {
     border: 1px solid black;
     margin: 10px;
 }
-5. CSS 레이아웃
-5.1. Flexbox
+# 5. CSS 레이아웃
+# 5.1. Flexbox
 Flexbox는 웹 페이지의 레이아웃을 간단하게 만들 수 있는 CSS3의 기능입니다. 부모 요소에 display: flex를 설정하고 자식 요소들이 유연하게 배치됩니다.
 
 예시 코드:
@@ -175,7 +175,7 @@ css
 .item {
     width: 30%;
 }
-5.2. Grid
+# 5.2. Grid
 Grid는 2차원 레이아웃을 쉽게 만들 수 있게 해주는 CSS3 기능입니다. display: grid를 사용하여 행과 열로 구성된 레이아웃을 만들 수 있습니다.
 
 예시 코드:
@@ -190,5 +190,5 @@ css
 .item {
     background-color: lightblue;
 }
-6. 결론
+## 6. 결론
 CSS는 웹 페이지의 디자인을 꾸미는 데 중요한 역할을 합니다. 다양한 선택자와 속성을 사용하여 레이아웃과 스타일을 자유롭게 설정할 수 있습니다. CSS를 잘 활용하면 사용자 경험을 향상시키고, 웹 페이지를 보다 직관적이고 아름답게 만들 수 있습니다.
