@@ -26,7 +26,7 @@ markdown
 # 2.2. 내부 스타일 시트 (Internal CSS)
 -HTML 문서 내 <style> 태그를 사용하여 스타일을 정의할 수 있습니다. 주로 한 페이지에만 스타일을 적용할 때 사용합니다.
 ```html
-예시 코드:
+####예시 코드:
 html
 <head>
     <style>
@@ -43,7 +43,7 @@ html
 # 2.3. 인라인 스타일 (Inline CSS)
 -HTML 태그 내 style 속성을 사용하여 직접 스타일을 지정하는 방법입니다. 하나의 요소에만 스타일을 적용할 때 유용합니다.
 ```html
-예시 코드:
+####예시 코드:
 html
 <h1 style="color: blue; text-align: center;">CSS 학습 노트</h1>
 3. CSS 선택자 (Selectors)
@@ -109,8 +109,9 @@ h1, h2, h3 {
 color: 텍스트의 색상을 설정합니다.
 
 background-color: 배경색을 설정합니다.
+
+####예시 코드:
 ```html
-예시 코드:
 css
 body {
     background-color: lightgray;
@@ -126,8 +127,9 @@ h1 {
 - font-size: 글꼴 크기를 설정합니다.
 
 - font-weight: 글꼴의 굵기를 설정합니다.
+- 
+####예시 코드:
 ```html
-예시 코드:
 css
 p {
     font-family: 'Arial', sans-serif;
@@ -143,8 +145,8 @@ p {
 
 - text-decoration: 텍스트에 장식을 추가합니다(예: 밑줄, 취소선 등).
 
+####예시 코드:
 ```html
-예시 코드:
 css
 h1 {
     text-align: center;
@@ -161,8 +163,8 @@ h1 {
 
 3.margin: 요소와 다른 요소 사이의 간격
 
+####예시 코드:
 ```html
-예시 코드:
 css
 div {
     width: 300px;
@@ -175,8 +177,8 @@ div {
 # 5. CSS 레이아웃
 # 5.1. Flexbox
 Flexbox는 웹 페이지의 레이아웃을 간단하게 만들 수 있는 CSS3의 기능입니다. 부모 요소에 display: flex를 설정하고 자식 요소들이 유연하게 배치됩니다.
+####예시 코드:
 ```html
-예시 코드:
 css
 .container {
     display: flex;
@@ -191,7 +193,8 @@ css
 # 5.2. Grid
 Grid는 2차원 레이아웃을 쉽게 만들 수 있게 해주는 CSS3 기능입니다. display: grid를 사용하여 행과 열로 구성된 레이아웃을 만들 수 있습니다.
 
-예시 코드:
+####예시 코드:
+```html
 css
 .container {
     display: grid;
@@ -202,5 +205,7 @@ css
 .item {
     background-color: lightblue;
 }
+```
+
 ## 6. 결론
 CSS는 웹 페이지의 디자인을 꾸미는 데 중요한 역할을 합니다. 다양한 선택자와 속성을 사용하여 레이아웃과 스타일을 자유롭게 설정할 수 있습니다. CSS를 잘 활용하면 사용자 경험을 향상시키고, 웹 페이지를 보다 직관적이고 아름답게 만들 수 있습니다.
