@@ -1,0 +1,20 @@
+python-learning-notes/
+│
+├── README.md
+├── basics/
+│   ├── 01_Introduction_to_Python.md
+│   ├── 02_Variables_and_Data_Types.md
+│   ├── 03_Control_Flow.md
+│   └── 04_Functions.md
+│
+├── intermediate/
+│   ├── 01_Lists_and_Tuples.md
+│   ├── 02_Dictionaries.md
+│   ├── 03_Loops.md
+│   └── 04_Exception_Handling.md
+│
+└── advanced/
+    ├── 01_OOP.md
+    ├── 02_Generators_and_Iterators.md
+    ├── 03_Asyncio.md
+    └── 04_Decorators.md
