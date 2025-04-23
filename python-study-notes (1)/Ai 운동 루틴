@@ -1,0 +1,213 @@
+import random
+import aiomysql  # aiomysql로 변경
+from telegram import Update
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ConversationHandler
+from telegram.ext import ContextTypes
+import nest_asyncio
+import asyncio
+from dotenv import load_dotenv
+import os
+
+# .env 파일 로드
+load_dotenv()
+
+# MySQL 비동기 연결 설정 (aiomysql 사용)
+async def create_connection():
+    try:
+        db = await aiomysql.connect(
+            host=os.getenv("DB_HOST"),        # MySQL 서버 주소
+            user=os.getenv("DB_USER"),        # MySQL 사용자 이름
+            password=os.getenv("DB_PASSWORD"),  # MySQL 비밀번호
+            db=os.getenv("DB_NAME")           # MySQL 데이터베이스 이름
+        )
+        return db
+    except aiomysql.MySQLError as err:
+        print(f"MySQL 연결 오류: {err}")
+        return None
+
+# 운동 부위에 대한 운동 목록
+exercise_mapping = {
+    '가슴': ['벤치 프레스', '덤벨 프레스', '케이블 플라이', '인클라인 덤벨 프레스', '푸시업', '디클라인 프레스'],
+    '등': ['데드리프트', '랫 풀다운', '바벨 로우', '원 암 덤벨 로우', '시티드 로우','하이로우 머신','와이드 그립 랫 풀다운'],
+    '다리': ['스쿼트', '레그 프레스', '레그 컬', '런지', '힙 쓰러스트','스티프 데드리프트'],
+    '어깨': ['밀리터리 프레스', '덤벨 숄더 프레스', '사이드 레터럴 레이즈', '프론트 레이즈'],
+    '팔': ['바벨 컬', '덤벨 컬', '트라이셉스 푸시다운', '덤벨 킥백', '케이블 컬']
+}
+
+# 운동에 대한 루틴 정보 (세트, 반복, 중량, 세트당 시간, 세트간 휴식 시간)
+routine_mapping = {
+    '벤치 프레스': {'sets': [3, 4, 5], 'reps': [8, 10, 12], 'weight': [40, 60, 80], 'time_per_set': 2, 'rest_time': 1},
+    '덤벨 프레스': {'sets': [3, 4, 5], 'reps': [10, 12, 15], 'weight': [15, 20, 30], 'time_per_set': 2, 'rest_time': 1},
+    '케이블 플라이': {'sets': [3, 4, 6], 'reps': [12, 15, 15], 'weight': [10, 15, 30], 'time_per_set': 1, 'rest_time': 1},
+    '인클라인 덤벨 프레스': {'sets': [3, 4, 6], 'reps': [10, 12, 15], 'weight': [20, 30, 40], 'time_per_set': 2, 'rest_time': 1},
+    '디클라인 덤벨 프레스': {'sets': [3, 4, 6], 'reps': [10, 12, 15], 'weight': [20, 30, 40], 'time_per_set': 2, 'rest_time': 1},
+    '푸시업': {'sets': [3, 4, 5], 'reps': [10, 15, 25], 'weight': [0, 0, 0], 'time_per_set': 1, 'rest_time': 1},
+    '데드리프트': {'sets': [4, 5, 6], 'reps': [5, 8, 10], 'weight': [80, 100, 120], 'time_per_set': 3, 'rest_time': 2},
+    '랫 풀다운': {'sets': [4, 5, 6], 'reps': [8, 10, 12], 'weight': [40, 50, 60], 'time_per_set': 2, 'rest_time': 1},
+    '바벨 로우': {'sets': [4, 5, 6], 'reps': [6, 8, 10], 'weight': [50, 60, 80], 'time_per_set': 2, 'rest_time': 1},
+    '원 암 하이로우 머신': {'sets': [4, 5, 6], 'reps': [6, 8, 10], 'weight': [15, 30, 40], 'time_per_set': 2, 'rest_time': 1},
+    '와이드 그립 랫 풀다운': {'sets': [4, 5, 6], 'reps': [6, 8, 10], 'weight': [40, 50, 70], 'time_per_set': 2, 'rest_time': 1},
+    '원 암 덤벨 로우': {'sets': [3, 4, 5], 'reps': [8, 10, 12], 'weight': [20, 25, 30], 'time_per_set': 2, 'rest_time': 1},
+    '시티드 로우': {'sets': [4, 5, 6], 'reps': [8, 10, 12], 'weight': [30, 40, 50], 'time_per_set': 2, 'rest_time': 1},
+    '스쿼트': {'sets': [4, 5, 6], 'reps': [5, 8, 10], 'weight': [60, 80, 100], 'time_per_set': 2, 'rest_time': 2},
+    '레그 프레스': {'sets': [4, 5, 6], 'reps': [10, 12, 15], 'weight': [100, 120, 140], 'time_per_set': 2, 'rest_time': 1},
+    '레그 컬': {'sets': [3, 4, 5], 'reps': [10, 12, 15], 'weight': [30, 40, 50], 'time_per_set': 1, 'rest_time': 1},
+    '런지': {'sets': [3, 4, 5], 'reps': [10, 12, 15], 'weight': [20, 30, 40], 'time_per_set': 2, 'rest_time': 1},
+    '힙 쓰러스트': {'sets': [3, 4, 5], 'reps': [10, 12, 15], 'weight': [40, 60, 80], 'time_per_set': 2, 'rest_time': 1},
+    '스티프 데드리프트': {'sets': [4, 4, 4], 'reps': [5, 6, 8], 'weight': [60, 90, 110], 'time_per_set': 3, 'rest_time': 2},
+    '밀리터리 프레스': {'sets': [3, 4, 5], 'reps': [8, 10, 12], 'weight': [30, 40, 50], 'time_per_set': 2, 'rest_time': 1},
+    '덤벨 숄더 프레스': {'sets': [3, 4, 5], 'reps': [8, 10, 12], 'weight': [10, 15, 20], 'time_per_set': 2, 'rest_time': 1},
+    '사이드 레터럴 레이즈': {'sets': [3, 4, 5], 'reps': [12, 15, 20], 'weight': [5, 7, 10], 'time_per_set': 1, 'rest_time': 1},
+    '프론트 레이즈': {'sets': [3, 4, 5], 'reps': [12, 15, 20], 'weight': [5, 7, 10], 'time_per_set': 1, 'rest_time': 1},
+    '바벨 컬': {'sets': [3, 4, 5], 'reps': [10, 12, 15], 'weight': [20, 25, 30], 'time_per_set': 1, 'rest_time': 1},
+    '덤벨 컬': {'sets': [3, 4, 5], 'reps': [10, 12, 15], 'weight': [10, 15, 20], 'time_per_set': 1, 'rest_time': 1},
+    '트라이셉스 푸시다운': {'sets': [3, 4, 5], 'reps': [12, 15, 20], 'weight': [20, 25, 30], 'time_per_set': 1, 'rest_time': 1},
+    '덤벨 킥백': {'sets': [3, 4, 5], 'reps': [12, 15, 20], 'weight': [5, 10, 15], 'time_per_set': 1, 'rest_time': 1},
+    '케이블 컬': {'sets': [3, 4, 5], 'reps': [12, 15, 20], 'weight': [10, 15, 20], 'time_per_set': 1, 'rest_time': 1}
+}
+
+# 운동 수준에 따른 인덱스 매핑
+level_mapping = {
+    '초급': 0,
+    '중급': 1,
+    '상급': 2
+}
+
+# 운동 루틴 생성 함수
+def generate_workout_routine(target_area, level, workout_time):
+    if target_area not in exercise_mapping:
+        return "입력한 운동 부위는 유효하지 않습니다. 다시 입력하세요."
+    
+    if level not in level_mapping:
+        return "운동 수준은 초급, 중급, 상급 중 하나를 입력하세요."
+    
+    level_index = level_mapping[level]
+    exercises = exercise_mapping[target_area]
+    
+    total_time = 0
+    workout_plan = []
+    
+    while total_time < workout_time and exercises:
+        exercise = random.choice(exercises)
+        exercises.remove(exercise)
+        
+        if exercise not in routine_mapping:
+            continue
+        
+        routine = routine_mapping[exercise]
+        
+        sets = routine['sets'][level_index]
+        reps = routine['reps'][level_index]
+        weight = routine['weight'][level_index]
+        time_per_set = routine['time_per_set']
+        rest_time = routine['rest_time']
+        
+        total_sets_time = sets * time_per_set
+        total_rest_time = (sets - 1) * rest_time
+        total_exercise_time = total_sets_time + total_rest_time
+        
+        if total_time + total_exercise_time <= workout_time:
+            total_time += total_exercise_time
+            workout_plan.append(f"{exercise}:\n- 세트: {sets} 세트\n- 반복: {reps} 회\n- 중량: {weight} kg\n- 예상 운동 시간: {total_sets_time} 분\n- 세트 간 휴식 시간: {total_rest_time} 분")
+        else:
+            break
+
+    return f"원하는 시간: {workout_time}분\n총 운동 시간 (운동 + 휴식 포함): {total_time}분\n" + "\n\n".join(workout_plan)
+
+# 텔레그램 봇 설정
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("안녕하세요! 운동 루틴을 추천해드릴게요. '운동 루틴'이라고 말해보세요.")
+
+async def respond_to_workout_request(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if '운동 루틴' in update.message.text:
+        await update.message.reply_text("어떤 부위의 운동을 원하시나요? (가슴, 등, 다리, 어깨, 팔) ")
+        return 'TARGET_AREA'
+    else:
+        await update.message.reply_text("운동 루틴을 원하시면 '운동 루틴'이라고 말해주세요.")
+        return ConversationHandler.END
+
+async def set_target_area(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    target_area = update.message.text
+    context.user_data['target_area'] = target_area
+    await update.message.reply_text("운동 수준을 선택해주세요. (초급, 중급, 상급) ")
+    return 'LEVEL'
+
+async def set_level(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    level = update.message.text
+    context.user_data['level'] = level
+    await update.message.reply_text("운동 시간을 입력해주세요 (분 단위) ")
+    return 'WORKOUT_TIME'
+
+# 운동 시간을 입력받은 후, 닉네임을 입력 받기
+async def set_workout_time(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    try:
+        workout_time = int(update.message.text)
+        target_area = context.user_data['target_area']
+        level = context.user_data['level']
+
+        workout_routine = generate_workout_routine(target_area, level, workout_time)
+        await update.message.reply_text(workout_routine)
+
+        await update.message.reply_text("닉네임을 입력해주세요.") 
+        return 'NICKNAME'  
+    except ValueError:
+        await update.message.reply_text("숫자만 입력해주세요. 운동 시간을 다시 입력해주세요.")
+        return 'WORKOUT_TIME'
+
+# 닉네임을 입력 받은 후, MySQL에 저장
+async def set_nickname(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    nickname = update.message.text 
+    context.user_data['nickname'] = nickname 
+    
+    db = await create_connection()
+    if db is None:
+        await update.message.reply_text("MySQL 연결에 실패했습니다. 다시 시도해주세요.")
+        return ConversationHandler.END
+    
+    cursor = await db.cursor()
+
+    try:
+        # 중복된 chat_id가 있으면 아무 작업도 하지 않도록 INSERT IGNORE 사용
+        await cursor.execute(
+            "INSERT IGNORE INTO users (username, chat_id) VALUES (%s, %s)", 
+            (nickname, update.message.chat.id)
+        )
+        await db.commit()
+
+        await update.message.reply_text(f"닉네임 '{nickname}'이 저장되었습니다!")
+    except Exception as e:
+        await update.message.reply_text(f"에러가 발생했습니다: {str(e)}")
+
+    await cursor.close()  # 비동기적으로 커서를 닫기 위해 await 사용
+    db.close()
+
+    return ConversationHandler.END
+
+
+# main 함수 수정
+async def main():
+    application = Application.builder().token(os.getenv('8182095938:AAEcx9WmD5GuDtPCndtUO5FbhqLnpJVxihk')).build()
+
+    # 대화 흐름 정의
+    conversation_handler = ConversationHandler(
+        entry_points=[CommandHandler('start', start)],
+        states={
+            'TARGET_AREA': [MessageHandler(filters.TEXT & ~filters.COMMAND, set_target_area)],
+            'LEVEL': [MessageHandler(filters.TEXT & ~filters.COMMAND, set_level)],
+            'WORKOUT_TIME': [MessageHandler(filters.TEXT & ~filters.COMMAND, set_workout_time)],
+            'NICKNAME': [MessageHandler(filters.TEXT & ~filters.COMMAND, set_nickname)]
+        },
+        fallbacks=[MessageHandler(filters.TEXT & ~filters.COMMAND, respond_to_workout_request)]
+    )
+
+    application.add_handler(conversation_handler)
+
+    # Nesting asyncio event loop
+    nest_asyncio.apply()
+
+    # 실행
+    await application.run_polling()
+
+# asyncio를 사용하여 비동기적으로 실행
+if __name__ == '__main__':
+    asyncio.run(main())
