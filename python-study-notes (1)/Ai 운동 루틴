@@ -186,7 +186,7 @@ async def set_nickname(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # main 함수 수정
 async def main():
-    application = Application.builder().token(os.getenv('8182095938:AAEcx9WmD5GuDtPCndtUO5FbhqLnpJVxihk')).build()
+    application = Application.builder().token(os.getenv('')).build()
 
     # 대화 흐름 정의
     conversation_handler = ConversationHandler(
