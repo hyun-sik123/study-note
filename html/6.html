@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>네이버</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f5f6f7;
+    }
+
+    .naver-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 100px;
+    }
+
+    .naver-logo {
+      font-size: 40px;
+      font-weight: bold;
+      color: #03c75a;
+      margin-bottom: 30px;
+    }
+
+    .search-box {
+      display: flex;
+      width: 500px;
+      background-color: white;
+      border: 2px solid #03c75a;
+      border-radius: 30px;
+      overflow: hidden;
+    }
+
+    .search-box input {
+      flex: 1;
+      padding: 12px 20px;
+      border: none;
+      outline: none;
+      font-size: 16px;
+    }
+
+    .search-box button {
+      background-color: #03c75a;
+      border: none;
+      color: white;
+      padding: 0 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .menu {
+      margin-top: 40px;
+      display: flex;
+      gap: 20px;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .menu a {
+      text-decoration: none;
+      color: #333;
+    }
+
+    .login {
+      margin-top: 30px;
+    }
+
+    .login button {
+      background-color: #03c75a;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 15px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="naver-container">
+    <div class="naver-logo">NAVER</div>
+
+    <div class="search-box">
+      <input type="text" placeholder="검색어를 입력하세요">
+      <button>검색</button>
+    </div>
+
+    <div class="menu">
+      <a href="#">메일</a>
+      <a href="#">카페</a>
+      <a href="#">블로그</a>
+      <a href="#">지식iN</a>
+      <a href="#">쇼핑</a>
+    </div>
+
+    <div class="login">
+      <button>로그인</button>
+    </div>
+  </div>
+</body>
+</html>
